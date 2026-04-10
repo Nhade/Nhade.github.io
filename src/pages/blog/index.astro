@@ -73,9 +73,21 @@ const navLinks = [
 						>
 							{post.data.pubDate.toISOString().slice(0, 10)}
 						</time>
+						{(post.data.tags ?? []).length > 0 && (
+							<div class="mt-4 flex flex-wrap gap-2">
+								{(post.data.tags ?? []).map((tag) => (
+									<a
+										href={`/tags/${encodeURIComponent(tag)}`}
+										class="tag-badge"
+									>
+										{tag}
+									</a>
+								))}
+							</div>
+						)}
 						<h2 class="mt-2 text-xl font-semibold leading-snug">{post.data.title}</h2>
 						<p class="mt-2 text-sm leading-7 text-base-content/72">{post.data.description}</p>
-						<div class="mt-4">
+						<div class="mt-4 flex items-center justify-end gap-3">
 							<a href={`/blog/${post.id}`} class="btn btn-sm btn-primary">Read</a>
 						</div>
 					</article>

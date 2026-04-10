@@ -121,9 +121,12 @@ const navLinks = [
 									<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Tags</p>
 									<div class="flex flex-wrap gap-2">
 										{tags.map((tag) => (
-											<span class="rounded-full border border-base-content/10 bg-base-100/35 px-3 py-1 text-xs font-medium text-base-content/78">
+											<a
+												href={`/tags/${encodeURIComponent(tag)}`}
+												class="tag-badge"
+											>
 												{tag}
-											</span>
+											</a>
 										))}
 									</div>
 								</div>
