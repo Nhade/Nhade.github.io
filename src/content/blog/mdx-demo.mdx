@@ -1,0 +1,78 @@
+---
+title: "MDX + Custom Components"
+description: "A demo post showing how MDX lets you embed Astro components directly inside Markdown content."
+pubDate: "2026-04-11"
+author: "Ray"
+tags:
+  - MDX
+  - Astro
+  - DaisyUI
+---
+
+import Callout from '../../components/Callout.astro';
+
+# MDX in Astro
+
+MDX is Markdown with superpowers — you can import and use **Astro components** (or React, Vue, Svelte) directly inside your prose, no extra configuration needed per-file.
+
+## Why MDX?
+
+Plain Markdown is great for text, but sometimes you need richer UI inline with your writing:
+
+- Interactive code playgrounds
+- Custom callout boxes
+- Data-driven charts
+- Anything a component can do
+
+<Callout type="info">
+  MDX files use the `.mdx` extension and are picked up automatically by the content collection glob `**/*.{md,mdx}`.
+</Callout>
+
+## Importing Components
+
+At the top of any `.mdx` file, add a standard JS import **below the frontmatter fence**:
+
+```mdx
+import Callout from '../../components/Callout.astro';
+```
+
+Then drop the component anywhere in the body like regular JSX:
+
+```mdx
+<Callout type="warning">
+  Watch out — this is a destructive operation!
+</Callout>
+```
+
+<Callout type="warning">
+  Watch out — this is a destructive operation! Always back up your data before running migrations.
+</Callout>
+
+## All Callout Variants
+
+<Callout type="success" title="Deployed!">
+  Your site was published to GitHub Pages successfully.
+</Callout>
+
+<Callout type="error" title="Build Failed">
+  TypeScript found type errors. Run `tsc --noEmit` locally to see the full list.
+</Callout>
+
+<Callout type="info" title="Good to Know">
+  The `Callout` component uses DaisyUI `alert` classes so it inherits your active theme automatically.
+</Callout>
+
+## How the Component Works
+
+The `Callout` component (`src/components/Callout.astro`) accepts two props:
+
+| Prop    | Type                                      | Default  |
+| ------- | ----------------------------------------- | -------- |
+| `type`  | `'info' \| 'warning' \| 'error' \| 'success'` | `'info'` |
+| `title` | `string`                                  | auto     |
+
+It renders a DaisyUI `alert` with `role="alert"` and `not-prose` so Tailwind Typography doesn't fight the alert styles.
+
+## Wrapping Up
+
+MDX + Astro is a clean combo: your content stays readable as text, but you unlock component-level expressiveness whenever you need it.
