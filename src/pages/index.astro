@@ -1,16 +1,46 @@
----
+﻿---
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
 
 const allPosts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+const [featuredPost, ...remainingPosts] = allPosts;
+const recentPosts = (remainingPosts.length > 0 ? remainingPosts : allPosts).slice(0, 4);
 
 const navLinks = [
-	{ href: '/', label: 'Home' },
-	{ href: '/blog', label: 'Posts' },
-	{ href: '#about', label: 'About' },
+	{ href: '/', label: 'Home', isActive: true },
+	{ href: '/blog', label: 'Posts', isActive: false },
+	{ href: '#about', label: 'About', isActive: false },
 ];
+
+const nowItems = [
+	{
+		label: 'Currently building',
+		value: 'A calmer writing-first home for this blog, with room for notes, experiments, and shipped work.',
+	},
+	{
+		label: 'Stack',
+		value: 'Astro, Tailwind v4, daisyUI, and a deliberately small set of reusable editorial patterns.',
+	},
+	{
+		label: 'Focus',
+		value: 'Sharper writing hierarchy, warmer motion, and pages that feel maintained instead of generated.',
+	},
+];
+
+const aboutPoints = [
+	'Thoughtful build logs, interface notes, and occasional technical essays.',
+	'An intentionally small publishing setup that stays close to the code.',
+	'Writing that treats software as a craft, not just a release schedule.',
+];
+
+const formatDate = (date: Date) =>
+	date.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	});
 ---
 
 <html lang="en" data-theme="editorial">
@@ -24,20 +54,22 @@ const navLinks = [
 		<meta name="generator" content={Astro.generator} />
 		<title>Dev Blog</title>
 	</head>
-	<body class="min-h-screen bg-base-100 text-base-content">
-		<div class="min-h-screen">
-			<header class="sticky top-0 z-10 bg-base-100/90 backdrop-blur-sm shadow-sm">
+	<body class="editorial-shell min-h-screen bg-base-100 text-base-content">
+		<div class="relative z-10 min-h-screen">
+			<header class="editorial-header sticky top-0 z-10 bg-base-100/90 backdrop-blur-sm">
 				<div class="navbar mx-auto max-w-6xl px-4 sm:px-6">
 					<div class="navbar-start">
-						<a href="/" class="btn btn-ghost text-lg font-semibold tracking-tight">Dev Blog</a>
+						<a href="/" class="btn btn-ghost text-lg font-semibold tracking-tight text-base-content">Dev Blog</a>
 					</div>
 					<div class="navbar-center hidden lg:flex">
 						<ul class="menu menu-horizontal gap-2 px-1">
 							{navLinks.map((link) => (
-								<li><a href={link.href}>{link.label}</a></li>
-							))}
-						</ul>
-					</div>
+							<li>
+								<a href={link.href} class="nav-link" aria-current={link.isActive ? 'page' : undefined}>{link.label}</a>
+							</li>
+						))}
+					</ul>
+				</div>
 					<div class="navbar-end">
 						<div class="dropdown dropdown-end lg:hidden">
 							<button class="btn btn-ghost" aria-label="Open navigation menu">
@@ -47,84 +79,167 @@ const navLinks = [
 							</button>
 							<ul class="menu dropdown-content z-10 mt-3 w-52 rounded-box border border-base-300 bg-base-200 p-2 shadow-lg">
 								{navLinks.map((link) => (
-									<li><a href={link.href}>{link.label}</a></li>
-								))}
-							</ul>
-						</div>
+								<li>
+									<a href={link.href} class="nav-link" aria-current={link.isActive ? 'page' : undefined}>{link.label}</a>
+								</li>
+							))}
+						</ul>
+					</div>
 						<a href="/blog" class="btn btn-primary hidden sm:inline-flex">Read posts</a>
 					</div>
 				</div>
 			</header>
 
-			<main class="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-12 sm:px-6">
-				<!-- Hero -->
-				<section id="home" class="rounded-box bg-base-200 p-6 sm:p-10">
-					<div class="flex w-full flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-						<div class="max-w-2xl space-y-5">
-							<div class="badge badge-outline text-xs tracking-widest uppercase">
-								Shipping notes, experiments, and lessons learned
+			<main class="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-10 sm:px-6 sm:py-12">
+				<section id="home" class="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_22rem] lg:items-start">
+					<div class="editorial-panel editorial-hero motion-reveal rounded-box px-6 py-7 sm:px-10 sm:py-10" style="--reveal-order: 0;">
+						<div class="max-w-3xl space-y-5">
+							<div class="badge badge-outline border-base-content/10 bg-base-100/30 px-3 py-3 text-[0.7rem] font-medium tracking-[0.22em] text-muted uppercase">
+								Personal notes on building for the web
 							</div>
-							<h1 class="font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-								A dev blog built with<br class="hidden sm:block" /> Astro and daisyUI.
-							</h1>
-							<p class="max-w-xl text-base-content/65 leading-relaxed">
-								Start with a clean landing page, a working navigation bar, and room to grow into a proper posts archive.
-							</p>
-							<div class="flex flex-wrap gap-3 pt-1">
-								<a href="/blog/first-post" class="btn btn-primary">Latest post</a>
-								<a href="#about" class="btn btn-outline">About this blog</a>
+							<div class="space-y-4">
+								<p class="eyebrow text-xs font-medium">Dev Blog</p>
+								<h1 class="font-display text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl lg:text-7xl">
+									Writing about code,
+									<br class="hidden sm:block" />
+									design systems, and the small decisions that shape products.
+								</h1>
+								<p class="max-w-2xl text-[1.05rem] leading-8 text-base-content/76 sm:text-[1.1rem]">
+									A quiet corner for build logs, interface thinking, and practical notes from ongoing work. Less launch copy, more field notes.
+								</p>
 							</div>
-						</div>
-						<div class="w-full max-w-sm rounded-box border border-base-300 bg-base-300 p-6">
-							<p class="text-xs font-medium uppercase tracking-widest text-base-content/50">Current focus</p>
-							<h2 class="mt-3 text-lg font-semibold leading-snug">Documenting the build process</h2>
-							<p class="mt-2 text-sm text-base-content/65 leading-relaxed">
-								This layout gives the blog a usable header, clearer sections, and a better default visual baseline.
-							</p>
+							<div class="flex flex-wrap gap-3 pt-2">
+								<a href={featuredPost ? `/blog/${featuredPost.id}` : '/blog'} class="btn btn-primary">Read featured post</a>
+								<a href="/blog" class="btn btn-outline">Browse writing archive</a>
+							</div>
 						</div>
 					</div>
+
+					<aside class="editorial-card editorial-sidepanel motion-reveal rounded-box p-6 sm:p-7" style="--reveal-order: 1;">
+						<div class="flex items-center justify-between gap-4">
+							<div>
+								<p class="eyebrow text-xs font-medium">Now</p>
+								<h2 class="mt-2 text-xl font-semibold">Current focus</h2>
+							</div>
+							<div class="badge badge-outline border-primary/20 bg-primary/8 px-3 py-3 text-[0.68rem] tracking-[0.2em] text-primary uppercase">
+								Updated
+							</div>
+						</div>
+						<div class="mt-6 space-y-5">
+							{nowItems.map((item) => (
+								<div class="border-t border-base-content/8 pt-5 first:border-0 first:pt-0">
+									<p class="text-xs font-semibold tracking-[0.18em] text-muted uppercase">{item.label}</p>
+									<p class="mt-2 text-sm leading-7 text-base-content/74">{item.value}</p>
+								</div>
+							))}
+						</div>
+					</aside>
 				</section>
 
-				<!-- Recent posts -->
-				<section id="posts" class="space-y-6">
+				{featuredPost && (
+					<section class="motion-reveal space-y-5" style="--reveal-order: 2;">
+						<div class="flex items-end justify-between gap-4">
+							<div>
+								<p class="eyebrow text-xs font-medium">Featured</p>
+								<h2 class="mt-2 font-display text-3xl font-semibold">Start here</h2>
+							</div>
+							<a href={`/blog/${featuredPost.id}`} class="editorial-link hidden text-sm sm:inline">Open featured writing</a>
+						</div>
+
+						<article class="editorial-panel editorial-feature rounded-box p-7 sm:p-9">
+							<div class="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)] lg:items-end">
+								<div class="max-w-2xl">
+									<time datetime={featuredPost.data.pubDate.toISOString()} class="text-muted text-sm">
+										{formatDate(featuredPost.data.pubDate)}
+									</time>
+									<h3 class="mt-3 font-display text-3xl font-semibold leading-tight sm:text-4xl">
+										{featuredPost.data.title}
+									</h3>
+									<p class="mt-4 text-[1.02rem] leading-8 text-base-content/74">
+										{featuredPost.data.description}
+									</p>
+								</div>
+								<div class="rounded-box border border-base-content/8 bg-base-100/35 p-5">
+									<p class="text-xs font-semibold tracking-[0.18em] text-muted uppercase">Why this piece</p>
+									<p class="mt-3 text-sm leading-7 text-base-content/74">
+										It sets the tone for the site: practical, reflective, and closer to the workbench than the launch deck.
+									</p>
+									<div class="mt-5">
+										<a href={`/blog/${featuredPost.id}`} class="btn btn-primary btn-sm">Read the piece</a>
+									</div>
+								</div>
+							</div>
+						</article>
+					</section>
+				)}
+
+				<section id="posts" class="motion-reveal space-y-5" style="--reveal-order: 3;">
 					<div class="flex items-end justify-between gap-4">
 						<div>
-							<p class="text-xs font-medium uppercase tracking-widest text-base-content/50">Posts</p>
-							<h2 class="mt-1 font-display text-3xl font-semibold">Recent writing</h2>
+							<p class="eyebrow text-xs font-medium">Recent writing</p>
+							<h2 class="mt-2 font-display text-3xl font-semibold">Latest notes and posts</h2>
 						</div>
-						<a href="/blog" class="link link-hover text-sm hidden sm:inline">Browse all posts →</a>
+						<a href="/blog" class="editorial-link hidden text-sm sm:inline">Browse all posts</a>
 					</div>
 
-					<div class="grid gap-4">
-						{allPosts.map((post) => (
-							<article class="rounded-box border border-base-300 bg-base-200 p-6 transition-colors hover:border-primary/30">
-								<div class="flex flex-wrap items-center gap-3">
-									<time
-										datetime={post.data.pubDate.toISOString()}
-										class="text-sm text-base-content/50"
-									>
-										{post.data.pubDate.toISOString().slice(0, 10)}
+					<div class="grid gap-4 md:grid-cols-2">
+						{recentPosts.map((post) => (
+							<article class="editorial-card editorial-post-card group rounded-box p-6">
+								<div class="flex items-center justify-between gap-3">
+									<time datetime={post.data.pubDate.toISOString()} class="text-muted text-sm">
+										{formatDate(post.data.pubDate)}
 									</time>
+									<span class="text-[0.68rem] tracking-[0.18em] text-muted uppercase">Essay</span>
 								</div>
-								<h3 class="mt-2 text-xl font-semibold leading-snug">{post.data.title}</h3>
-								<p class="mt-2 text-sm text-base-content/65 leading-relaxed">{post.data.description}</p>
-								<div class="mt-4">
-									<a href={`/blog/${post.id}`} class="btn btn-sm btn-outline">Read post</a>
+								<h3 class="mt-4 text-2xl font-semibold leading-snug">{post.data.title}</h3>
+								<p class="mt-3 text-sm leading-7 text-base-content/72">{post.data.description}</p>
+								<div class="mt-6 flex items-center justify-between gap-4">
+									<a href={`/blog/${post.id}`} class="editorial-link text-sm">Read post</a>
+									<span aria-hidden="true" class="text-base-content/25 transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
 								</div>
 							</article>
 						))}
 					</div>
 				</section>
 
-				<!-- About -->
-				<section id="about" class="rounded-box border border-base-300 bg-base-200 p-8">
-					<p class="text-xs font-medium uppercase tracking-widest text-base-content/50">About</p>
-					<h2 class="mt-2 font-display text-3xl font-semibold">What belongs here</h2>
-					<p class="mt-4 max-w-2xl text-base-content/65 leading-relaxed">
-						Use this section for the blog's purpose, author intro, and links to projects or external profiles. It is intentionally minimal so you can evolve it without undoing a large template.
-					</p>
+				<section id="about" class="editorial-panel motion-reveal rounded-box p-8 sm:p-9" style="--reveal-order: 4;">
+					<div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
+						<div>
+							<p class="eyebrow text-xs font-medium">About</p>
+							<h2 class="mt-2 font-display text-3xl font-semibold">A small, personal place to think in public</h2>
+							<p class="mt-4 max-w-2xl text-[1.02rem] leading-8 text-base-content/76">
+								This homepage is intentionally quiet. It gives featured writing room to lead, keeps newer posts easy to scan, and leaves space for the blog to grow around real work instead of template filler.
+							</p>
+						</div>
+						<div class="space-y-4">
+							{aboutPoints.map((point) => (
+								<div class="rounded-box border border-base-content/8 bg-base-100/28 px-4 py-4 text-sm leading-7 text-base-content/74">
+									{point}
+								</div>
+							))}
+						</div>
+					</div>
 				</section>
 			</main>
 		</div>
+		<script is:inline>
+			if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+				document.documentElement.classList.add('motion-safe');
+
+				const revealItems = Array.from(document.querySelectorAll('.motion-reveal'));
+				const revealObserver = new IntersectionObserver(
+					(entries) => {
+						entries.forEach((entry) => {
+							if (!entry.isIntersecting) return;
+							entry.target.classList.add('is-visible');
+							revealObserver.unobserve(entry.target);
+						});
+					},
+					{ threshold: 0.16, rootMargin: '0px 0px -8% 0px' }
+				);
+
+				revealItems.forEach((item) => revealObserver.observe(item));
+			}
+		</script>
 	</body>
 </html>

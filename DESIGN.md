@@ -193,6 +193,16 @@ Avoid glassmorphism on regular cards or as a site-wide rule. A lightly transluce
 
 Use motion for hover feedback, focus transitions, and menu entry/exit. Keep easing calm and short.
 
+### New principle: motion as confirmation
+
+Motion should confirm intent, not compete with content. The interaction should feel slightly more precise after hover, focus, or scroll, but never attract attention away from reading.
+
+Apply this by default:
+- Keep transitions fast: roughly `140ms` to `260ms`
+- Favor tiny vertical lifts, underline growth, border tint shifts, and opacity changes over large movement
+- Use reveal-on-scroll only for major sections, once, with short travel distance
+- Make persistent reading aids like progress indicators subtle enough to disappear from attention when not needed
+
 **Avoid:** parallax, excessive spring animations, long easing on repeated interactions, any background animation behind reading content.
 
 Always honor `prefers-reduced-motion`:
@@ -239,3 +249,16 @@ Use a small number of reusable patterns rather than composing everything ad hoc.
 | Use amber gradient on primary CTAs only | Use gradients behind body text or code |
 | Keep motion calm and short | Add parallax or background animation near content |
 | Verify contrast independently for syntax highlighting | Assume UI contrast checks cover code themes |
+---
+
+## 12. Reading Rails
+
+Long-form article pages should include subtle orientation aids that help readers stay grounded without turning the layout into an app dashboard.
+
+Use a small set of reading rails:
+- a strong article header with clear title and metadata grouping
+- a thin reading progress indicator
+- a sticky table of contents on desktop when the content has meaningful headings
+- adjacent post navigation at the end of the article
+
+These aids must remain quiet. They should use restrained borders, muted labels, and small sticky regions so the prose remains the primary surface.

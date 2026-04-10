@@ -12,12 +12,37 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const allPosts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const currentIndex = allPosts.findIndex((entry) => entry.id === post.id);
+const newerPost = currentIndex > 0 ? allPosts[currentIndex - 1] : undefined;
+const olderPost = currentIndex >= 0 && currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : undefined;
+const { Content, headings } = await render(post);
+
+const topLevelHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const wordCount = post.body.split(/\s+/).filter(Boolean).length;
+const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 220));
+const author = post.data.author ?? 'Ray';
+const tags = post.data.tags ?? [];
+
+const formatDate = (date: Date) =>
+	date.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	});
+
+const metadataItems = [
+	{ label: 'By', value: author },
+	{ label: 'Published', value: formatDate(post.data.pubDate) },
+	{ label: 'Reading time', value: `${readingTimeMinutes} min read` },
+];
 
 const navLinks = [
-	{ href: '/', label: 'Home' },
-	{ href: '/blog', label: 'Posts' },
-	{ href: '/#about', label: 'About' },
+	{ href: '/', label: 'Home', isActive: false },
+	{ href: '/blog', label: 'Posts', isActive: true },
+	{ href: '/#about', label: 'About', isActive: false },
 ];
 ---
 
@@ -32,16 +57,21 @@ const navLinks = [
 		<meta name="generator" content={Astro.generator} />
 		<title>{post.data.title} | Dev Blog</title>
 	</head>
-	<body class="min-h-screen bg-base-100 text-base-content">
-		<header class="sticky top-0 z-10 bg-base-100/90 backdrop-blur-sm shadow-sm">
+	<body class="editorial-shell min-h-screen bg-base-100 text-base-content">
+		<div aria-hidden="true" class="reading-progress">
+			<div class="reading-progress__bar" data-reading-progress></div>
+		</div>
+		<header class="editorial-header sticky top-0 z-10 bg-base-100/90 backdrop-blur-sm">
 			<div class="navbar mx-auto max-w-6xl px-4 sm:px-6">
 				<div class="navbar-start">
-					<a href="/" class="btn btn-ghost text-lg font-semibold tracking-tight">Dev Blog</a>
+					<a href="/" class="btn btn-ghost text-lg font-semibold tracking-tight text-base-content">Dev Blog</a>
 				</div>
 				<div class="navbar-center hidden lg:flex">
 					<ul class="menu menu-horizontal gap-2 px-1">
 						{navLinks.map((link) => (
-							<li><a href={link.href}>{link.label}</a></li>
+							<li>
+								<a href={link.href} class="nav-link" aria-current={link.isActive ? 'page' : undefined}>{link.label}</a>
+							</li>
 						))}
 					</ul>
 				</div>
@@ -54,7 +84,9 @@ const navLinks = [
 						</button>
 						<ul class="menu dropdown-content z-10 mt-3 w-52 rounded-box border border-base-300 bg-base-200 p-2 shadow-lg">
 							{navLinks.map((link) => (
-								<li><a href={link.href}>{link.label}</a></li>
+								<li>
+									<a href={link.href} class="nav-link" aria-current={link.isActive ? 'page' : undefined}>{link.label}</a>
+								</li>
 							))}
 						</ul>
 					</div>
@@ -63,27 +95,182 @@ const navLinks = [
 			</div>
 		</header>
 
-		<main class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-			<header class="mb-10 space-y-4">
-				<time
-					datetime={post.data.pubDate.toISOString()}
-					class="text-sm text-base-content/50"
-				>
-					{post.data.pubDate.toISOString().slice(0, 10)}
-				</time>
-				<h1 class="font-display text-4xl font-semibold leading-tight sm:text-5xl">
-					{post.data.title}
-				</h1>
-				<p class="text-base-content/65 leading-relaxed">{post.data.description}</p>
-			</header>
+		<main class="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+			<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_18rem]">
+				<div class="min-w-0">
+					<header class="mx-auto mb-8 max-w-3xl space-y-6 sm:mb-10">
+						<div class="space-y-3">
+							<a href="/blog" class="eyebrow text-xs font-medium editorial-link no-underline">Back to posts</a>
+							<h1 class="font-display text-4xl font-semibold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
+								{post.data.title}
+							</h1>
+							<p class="max-w-2xl text-[1.05rem] leading-8 text-base-content/76 sm:text-[1.1rem]">
+								{post.data.description}
+							</p>
+						</div>
 
-			<article class="prose lg:prose-lg mx-auto rounded-box border border-base-300 bg-base-200 p-8">
-				<Content />
-			</article>
+						<div class="editorial-meta-grid rounded-box border border-base-content/8 bg-base-200/70 p-4 sm:p-5">
+							{metadataItems.map((item) => (
+								<div class="space-y-1">
+									<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">{item.label}</p>
+									<p class="text-sm leading-6 text-base-content/88">{item.value}</p>
+								</div>
+							))}
+							{tags.length > 0 && (
+								<div class="space-y-2 sm:col-span-2 lg:col-span-1">
+									<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Tags</p>
+									<div class="flex flex-wrap gap-2">
+										{tags.map((tag) => (
+											<span class="rounded-full border border-base-content/10 bg-base-100/35 px-3 py-1 text-xs font-medium text-base-content/78">
+												{tag}
+											</span>
+										))}
+									</div>
+								</div>
+							)}
+						</div>
+					</header>
 
-			<div class="mt-10">
-				<a href="/blog" class="btn btn-outline">← All posts</a>
+					<article id="article-content" class="editorial-article editorial-panel prose lg:prose-lg mx-auto max-w-3xl rounded-box p-7 sm:p-10 lg:p-12">
+						<Content />
+					</article>
+
+					<nav class="mx-auto mt-8 grid max-w-3xl gap-4 sm:mt-10 md:grid-cols-2" aria-label="Post navigation">
+						{newerPost ? (
+							<a href={`/blog/${newerPost.id}`} class="editorial-card rounded-box p-5">
+								<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Newer post</p>
+								<p class="mt-3 text-lg font-semibold leading-snug">{newerPost.data.title}</p>
+							</a>
+						) : (
+							<div aria-hidden="true"></div>
+						)}
+						{olderPost ? (
+							<a href={`/blog/${olderPost.id}`} class="editorial-card rounded-box p-5 md:text-right">
+								<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Older post</p>
+								<p class="mt-3 text-lg font-semibold leading-snug">{olderPost.data.title}</p>
+							</a>
+						) : (
+							<div aria-hidden="true"></div>
+						)}
+					</nav>
+				</div>
+
+				{topLevelHeadings.length > 0 && (
+					<aside class="hidden lg:block">
+						<div class="editorial-toc editorial-card rounded-box p-5">
+							<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">On this page</p>
+							<nav class="mt-4" aria-label="Table of contents">
+								<ol class="space-y-1.5">
+									{topLevelHeadings.map((heading) => (
+										<li>
+											<a
+												href={`#${heading.slug}`}
+												class:list={[
+													'editorial-toc-link block rounded-md px-3 py-2 text-sm leading-6 text-base-content/68 transition-colors',
+													heading.depth === 3 && 'pl-6 text-base-content/58',
+												]}
+												data-toc-link
+												data-heading-slug={heading.slug}
+											>
+												{heading.text}
+											</a>
+										</li>
+									))}
+								</ol>
+							</nav>
+						</div>
+					</aside>
+				)}
 			</div>
 		</main>
+
+		<script is:inline>
+			const progressBar = document.querySelector('[data-reading-progress]');
+			const article = document.querySelector('#article-content');
+			const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+			const headingElements = tocLinks
+				.map((link) => document.getElementById(link.getAttribute('data-heading-slug')))
+				.filter(Boolean);
+			let articleTop = 0;
+			let articleHeight = 0;
+			let viewportHeight = window.innerHeight;
+			let activeHeadingId = headingElements[0]?.id;
+			let scrollTicking = false;
+
+			const updateTocState = () => {
+				if (tocLinks.length === 0) return;
+
+				tocLinks.forEach((link) => {
+					const isActive = link.getAttribute('data-heading-slug') === activeHeadingId;
+					link.classList.toggle('is-active', isActive);
+					link.setAttribute('aria-current', isActive ? 'true' : 'false');
+				});
+			};
+
+			const measureArticle = () => {
+				if (!article) return;
+
+				const rect = article.getBoundingClientRect();
+				articleTop = rect.top + window.scrollY;
+				articleHeight = rect.height;
+				viewportHeight = window.innerHeight;
+			};
+
+			const updateProgress = () => {
+				scrollTicking = false;
+				if (!article || !progressBar) return;
+
+				const scrollableDistance = Math.max(articleHeight - viewportHeight, 1);
+				const rawProgress = (window.scrollY - articleTop) / scrollableDistance;
+				const clampedProgress = Math.max(0, Math.min(rawProgress, 1));
+				progressBar.style.transform = `scaleX(${clampedProgress})`;
+				progressBar.style.opacity = clampedProgress > 0.01 ? '1' : '0';
+			};
+
+			const queueProgressUpdate = () => {
+				if (scrollTicking) return;
+				scrollTicking = true;
+				window.requestAnimationFrame(updateProgress);
+			};
+
+			if (headingElements.length > 0) {
+				const visibleHeadings = new Set();
+				const headingObserver = new IntersectionObserver(
+					(entries) => {
+						entries.forEach((entry) => {
+							if (entry.isIntersecting) {
+								visibleHeadings.add(entry.target);
+							} else {
+								visibleHeadings.delete(entry.target);
+							}
+						});
+
+						const nextActiveHeading =
+							headingElements.findLast((heading) => visibleHeadings.has(heading)) ?? headingElements[0];
+
+						if (nextActiveHeading?.id !== activeHeadingId) {
+							activeHeadingId = nextActiveHeading?.id;
+							updateTocState();
+						}
+					},
+					{
+						rootMargin: '-20% 0px -65% 0px',
+						threshold: [0, 1],
+					}
+				);
+
+				headingElements.forEach((heading) => headingObserver.observe(heading));
+			}
+
+			measureArticle();
+			updateProgress();
+			updateTocState();
+
+			window.addEventListener('scroll', queueProgressUpdate, { passive: true });
+			window.addEventListener('resize', () => {
+				measureArticle();
+				queueProgressUpdate();
+			});
+		</script>
 	</body>
 </html>

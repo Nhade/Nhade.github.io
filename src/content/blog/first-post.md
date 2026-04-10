@@ -2,6 +2,11 @@
 title: "First Post"
 description: "Getting started with Astro, Tailwind CSS, and DaisyUI"
 pubDate: "2026-04-10"
+author: "Ray"
+tags:
+  - Astro
+  - Tailwind CSS
+  - Design Systems
 ---
 
 # Getting Started with Astro
