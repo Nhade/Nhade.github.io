@@ -1,5 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Manrope:wght@300..800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @plugin "daisyui" {
-  themes: light --default, dim --prefersdark;
+  themes: false;
+}
+
+/* ------------------------------------------------------------------ */
+/* Editorial Sanctuary — warm dark theme (redesigned)                  */
+/*                                                                      */
+/* Surface hierarchy (dark → light):                                   */
+/*   base-100  page background     (darkest)                           */
+/*   base-200  cards, sections     (lifted)                            */
+/*   base-300  code wells, inputs  (accent surface)                    */
+/* ------------------------------------------------------------------ */
+[data-theme="editorial"] {
+  color-scheme: dark;
+
+  /* warm charcoal surfaces — NOT near-black */
+  --color-base-100: oklch(15% 0.012 55);
+  --color-base-200: oklch(19.5% 0.012 55);
+  --color-base-300: oklch(24% 0.012 55);
+
+  /* warm off-white text — softer than #e3e6ea */
+  --color-base-content: oklch(80% 0.018 60);
+
+  /* warm amber primary */
+  --color-primary: oklch(76% 0.14 70);
+  --color-primary-content: oklch(15% 0.012 55);
+
+  /* muted sage */
+  --color-secondary: oklch(58% 0.07 150);
+  --color-secondary-content: oklch(95% 0.01 150);
+
+  /* deeper amber accent */
+  --color-accent: oklch(72% 0.13 65);
+  --color-accent-content: oklch(15% 0.012 55);
+
+  /* utility neutral */
+  --color-neutral: oklch(17% 0.01 55);
+  --color-neutral-content: oklch(80% 0.018 60);
+
+  /* status */
+  --color-info: oklch(62% 0.15 215);
+  --color-info-content: oklch(15% 0.02 215);
+  --color-success: oklch(62% 0.15 150);
+  --color-success-content: oklch(15% 0.02 150);
+  --color-warning: oklch(72% 0.15 70);
+  --color-warning-content: oklch(15% 0.02 70);
+  --color-error: oklch(62% 0.2 20);
+  --color-error-content: oklch(95% 0.01 20);
+
+  /* shape */
+  --radius-box: 1rem;
+  --radius-selector: 0.75rem;
+  --radius-field: 0.5rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                 */
+/* ------------------------------------------------------------------ */
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ------------------------------------------------------------------ */
+/* Primary button — restrained amber gradient, pill shape              */
+/* ------------------------------------------------------------------ */
+.btn-primary {
+  background: linear-gradient(135deg, oklch(76% 0.14 70), oklch(72% 0.13 65));
+  background-color: transparent;
+  border-color: transparent;
+  color: oklch(15% 0.012 55);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, oklch(79% 0.14 70), oklch(75% 0.13 65));
+  border-color: transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* Focus ring                                                           */
+/* ------------------------------------------------------------------ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid oklch(76% 0.14 70);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Semantic classes                                                     */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .font-display {
+    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  }
+
+  .text-muted {
+    color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Prose (typography) — warm dark overrides                            */
+/* ------------------------------------------------------------------ */
+.prose {
+  --tw-prose-body: var(--color-base-content);
+  --tw-prose-headings: var(--color-base-content);
+  --tw-prose-links: var(--color-primary);
+  --tw-prose-bold: var(--color-base-content);
+  --tw-prose-counters: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+  --tw-prose-bullets: color-mix(in oklch, var(--color-base-content) 50%, transparent);
+  --tw-prose-hr: color-mix(in oklch, var(--color-base-content) 15%, transparent);
+  --tw-prose-quotes: var(--color-base-content);
+  --tw-prose-quote-borders: var(--color-primary);
+  --tw-prose-captions: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+  --tw-prose-code: var(--color-base-content);
+  --tw-prose-pre-code: var(--color-base-content);
+  --tw-prose-pre-bg: var(--color-base-300);
+  --tw-prose-th-borders: color-mix(in oklch, var(--color-base-content) 20%, transparent);
+  --tw-prose-td-borders: color-mix(in oklch, var(--color-base-content) 12%, transparent);
+}
+
+.prose a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose :not(pre) > code {
+  background-color: var(--color-base-300);
+  border-radius: 0.25rem;
+  padding: 0.15em 0.4em;
+  font-size: 0.875em;
+}
+
+.prose pre {
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                       */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
