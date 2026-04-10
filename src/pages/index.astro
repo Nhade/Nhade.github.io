@@ -1,5 +1,6 @@
 ﻿---
 import '../styles/global.css';
+import SEO from '../components/SEO.astro';
 import { getCollection } from 'astro:content';
 
 const allPosts = (await getCollection('blog')).sort(
@@ -53,6 +54,10 @@ const formatDate = (date: Date) =>
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Dev Blog</title>
+		<SEO
+			title="Dev Blog"
+			description="A quiet corner for build logs, interface thinking, and practical notes from ongoing work. Less launch copy, more field notes."
+		/>
 	</head>
 	<body class="editorial-shell min-h-screen bg-base-100 text-base-content">
 		<div class="relative z-10 min-h-screen">

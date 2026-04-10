@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import '../../styles/global.css';
+import SEO from '../../components/SEO.astro';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
@@ -45,6 +46,10 @@ const formatDate = (date: Date) =>
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Tag: {tag} | Dev Blog</title>
+		<SEO
+			title={`Tag: ${tag} | Dev Blog`}
+			description={`All posts tagged "${tag}" on Dev Blog.`}
+		/>
 	</head>
 	<body class="editorial-shell min-h-screen bg-base-100 text-base-content">
 		<header class="editorial-header sticky top-0 z-10 bg-base-100/90 backdrop-blur-sm">

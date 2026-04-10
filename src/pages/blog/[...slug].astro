@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import '../../styles/global.css';
+import SEO from '../../components/SEO.astro';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
@@ -56,6 +57,11 @@ const navLinks = [
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{post.data.title} | Dev Blog</title>
+		<SEO
+			title={`${post.data.title} | Dev Blog`}
+			description={post.data.description}
+			image={post.data.heroImage}
+		/>
 	</head>
 	<body class="editorial-shell min-h-screen bg-base-100 text-base-content">
 		<div aria-hidden="true" class="reading-progress">

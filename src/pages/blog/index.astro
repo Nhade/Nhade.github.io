@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import '../../styles/global.css';
+import SEO from '../../components/SEO.astro';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
@@ -23,6 +24,10 @@ const navLinks = [
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Posts | Dev Blog</title>
+		<SEO
+			title="Posts | Dev Blog"
+			description="Browse all posts and notes from Dev Blog — build logs, interface thinking, and practical notes from ongoing work."
+		/>
 	</head>
 	<body class="editorial-shell min-h-screen bg-base-100 text-base-content">
 		<header class="editorial-header sticky top-0 z-10 bg-base-100/90 backdrop-blur-sm">
