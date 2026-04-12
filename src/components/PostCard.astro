@@ -1,0 +1,70 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import PostTypeBadge from './PostTypeBadge.astro';
+
+interface Props {
+	post: CollectionEntry<'blog'>;
+	showType?: boolean;
+	showProject?: boolean;
+	showTakeaway?: boolean;
+}
+
+const { post, showType = false, showProject = false, showTakeaway = false } = Astro.props;
+
+const formatDate = (date: Date) =>
+	date.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	});
+
+const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 220));
+const tags = post.data.tags ?? [];
+const postType = post.data.postType ?? 'essay';
+---
+
+<article class="editorial-card editorial-post-card group rounded-box p-6">
+	<div class="flex items-center justify-between gap-3">
+		<time datetime={post.data.pubDate.toISOString()} class="text-muted text-sm">
+			{formatDate(post.data.pubDate)}
+		</time>
+		<div class="flex items-center gap-2">
+			{post.data.updatedDate && (
+				<span class="text-[0.65rem] tracking-[0.12em] text-muted uppercase">Updated</span>
+			)}
+			{showType && <PostTypeBadge type={postType} />}
+		</div>
+	</div>
+
+	<h3 class="mt-3 text-xl font-semibold leading-snug">{post.data.title}</h3>
+	<p class="mt-2 text-sm leading-7 text-base-content/72">{post.data.description}</p>
+
+	{showTakeaway && post.data.summary && (
+		<p class="mt-2 text-xs leading-6 text-primary/80 italic">
+			{post.data.summary}
+		</p>
+	)}
+
+	{showProject && post.data.project && (
+		<a href={`/projects#${post.data.project}`} class="mt-2 inline-block text-xs font-medium text-muted hover:text-primary transition-colors">
+			Part of {post.data.project}
+		</a>
+	)}
+
+	<div class="mt-4 flex items-center justify-between gap-4">
+		<div class="flex items-center gap-3">
+			{tags.length > 0 && (
+				<div class="flex flex-wrap gap-1.5">
+					{tags.slice(0, 3).map((tag) => (
+						<a href={`/tags/${encodeURIComponent(tag)}`} class="tag-badge text-[0.68rem]" style="min-height: 1.5rem; padding-inline: 0.6rem;">
+							{tag}
+						</a>
+					))}
+				</div>
+			)}
+			<span class="text-xs text-muted">{readingTime} min</span>
+		</div>
+		<a href={`/blog/${post.id}`} class="editorial-link text-sm">Read</a>
+	</div>
+</article>

@@ -1,0 +1,18 @@
+---
+interface Props {
+	status: 'active' | 'paused' | 'completed';
+}
+
+const { status } = Astro.props;
+
+const labels: Record<string, string> = {
+	active: 'Active',
+	paused: 'Paused',
+	completed: 'Completed',
+};
+---
+
+<span class={`status-badge status-badge--${status}`}>
+	<span class="inline-block h-1.5 w-1.5 rounded-full bg-current"></span>
+	{labels[status]}
+</span>

@@ -1,0 +1,17 @@
+---
+interface Props {
+	type: 'essay' | 'log' | 'note';
+}
+
+const { type } = Astro.props;
+
+const labels: Record<string, string> = {
+	essay: 'Essay',
+	log: 'Log',
+	note: 'Note',
+};
+---
+
+<span class={`post-type-badge post-type-badge--${type}`}>
+	{labels[type]}
+</span>

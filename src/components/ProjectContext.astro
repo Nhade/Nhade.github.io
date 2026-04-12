@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+	projectSlug: string;
+}
+
+const { projectSlug } = Astro.props;
+const allProjects = await getCollection('projects');
+const project = allProjects.find((p) => p.data.slug === projectSlug);
+---
+
+{project && (
+	<div class="rounded-box border border-primary/15 bg-primary/5 px-4 py-3 text-sm">
+		<span class="text-base-content/72">This post is part of</span>
+		<a href={`/projects#${project.data.slug}`} class="ml-1 font-semibold text-primary hover:underline">
+			{project.data.title}
+		</a>
+	</div>
+)}

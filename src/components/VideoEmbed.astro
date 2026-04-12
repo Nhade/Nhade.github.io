@@ -1,0 +1,28 @@
+---
+interface Props {
+	src: string;
+	title?: string;
+	aspectRatio?: '16/9' | '4/3';
+}
+
+const { src, title = 'Embedded video', aspectRatio = '16/9' } = Astro.props;
+
+// Convert Google Drive view URLs to embed format
+const embedSrc = src.includes('drive.google.com/file/d/')
+	? src.replace('/view', '/preview').replace('?usp=sharing', '')
+	: src;
+---
+
+<div
+	class="overflow-hidden rounded-lg border border-base-content/8 bg-base-300/40"
+	style={`aspect-ratio: ${aspectRatio};`}
+>
+	<iframe
+		src={embedSrc}
+		title={title}
+		class="h-full w-full"
+		allow="autoplay; encrypted-media"
+		allowfullscreen
+		loading="lazy"
+	></iframe>
+</div>
