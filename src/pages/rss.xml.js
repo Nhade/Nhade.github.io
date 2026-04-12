@@ -7,14 +7,15 @@ export async function GET(context) {
   );
 
   return rss({
-    title: 'Dev Blog',
-    description: 'Latest posts from the Dev Blog.',
+    title: "Ray's Lab",
+    description: 'A public build journal for AI learning tools — essays, build logs, and notes from ongoing work.',
     site: context.site,
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.pubDate,
       description: post.data.description,
       link: `/blog/${post.id}`,
+      categories: [post.data.postType ?? 'essay', ...(post.data.tags ?? [])],
     })),
   });
 }

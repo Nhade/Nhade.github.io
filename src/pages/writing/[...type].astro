@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+export function getStaticPaths() {
+	return [
+		{ params: { type: undefined }, props: { filter: 'all', label: 'All' } },
+		{ params: { type: 'essays' }, props: { filter: 'essay', label: 'Essays' } },
+		{ params: { type: 'logs' }, props: { filter: 'log', label: 'Logs' } },
+		{ params: { type: 'notes' }, props: { filter: 'note', label: 'Notes' } },
+	];
+}
+
+const { filter, label } = Astro.props;
+
+const allPosts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const posts = filter === 'all'
+	? allPosts
+	: allPosts.filter((post) => (post.data.postType ?? 'essay') === filter);
+
+const tabs = [
+	{ href: '/writing', label: 'All', active: filter === 'all' },
+	{ href: '/writing/essays', label: 'Essays', active: filter === 'essay' },
+	{ href: '/writing/logs', label: 'Logs', active: filter === 'log' },
+	{ href: '/writing/notes', label: 'Notes', active: filter === 'note' },
+];
+
+const title = filter === 'all' ? 'Writing | Ray\'s Lab' : `${label} | Writing | Ray's Lab`;
+---
+
+<BaseLayout
+	title={title}
+	description="Browse all writing from Ray's Lab — essays, build logs, and notes from ongoing work on AI learning tools."
+	activeNav="writing"
+>
+	<div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
+		<div class="motion-reveal mb-6 sm:mb-8" style="--reveal-order: 0;">
+			<p class="eyebrow text-xs font-medium">Ray's Lab</p>
+			<h1 class="mt-2 font-display text-4xl font-semibold">Writing</h1>
+		</div>
+
+		<nav class="motion-reveal editorial-tabs mb-8" style="--reveal-order: 0;" aria-label="Content type filter">
+			{tabs.map((tab) => (
+				<a
+					href={tab.href}
+					class="editorial-tab"
+					aria-current={tab.active ? 'page' : undefined}
+				>
+					{tab.label}
+				</a>
+			))}
+		</nav>
+
+		{posts.length > 0 ? (
+			<div class="grid gap-4 sm:gap-5">
+				{posts.map((post) => (
+					<div>
+						<PostCard post={post} showType={true} showProject={true} showTakeaway={true} />
+					</div>
+				))}
+			</div>
+		) : (
+			<div class="motion-reveal text-center py-16" style="--reveal-order: 1;">
+				<p class="text-muted">No {label.toLowerCase()} yet. Check back soon.</p>
+			</div>
+		)}
+	</div>
+</BaseLayout>

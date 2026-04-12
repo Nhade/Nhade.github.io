@@ -9,6 +9,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://nhade.github.io',
   integrations: [mdx(), sitemap()],
+  redirects: {
+    '/blog': '/writing',
+  },
   markdown: {
     shikiConfig: {
       theme: 'github-dark',

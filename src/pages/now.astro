@@ -1,0 +1,178 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import StatusBadge from '../components/StatusBadge.astro';
+import PostCard from '../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+import { currentFocus } from '../data/current-focus';
+
+const projects = await getCollection('projects');
+const currentProject = projects.find((project) => project.data.slug === currentFocus.projectSlug);
+
+const allPosts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const latestRelatedPost = allPosts.find((post) => post.data.project === currentFocus.projectSlug);
+const fallbackPost = allPosts[0];
+const highlightedPost = latestRelatedPost ?? fallbackPost;
+---
+
+<BaseLayout
+	title="Now | Ray's Lab"
+	description="What I'm actively building, testing, and questioning right now across my AI learning tools."
+	activeNav="now"
+>
+	<div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+		<section class="motion-reveal border-b border-base-content/8 pb-8" style="--reveal-order: 0;">
+			<p class="eyebrow text-xs font-medium">Now</p>
+			<div class="mt-3 flex flex-wrap items-start justify-between gap-4">
+				<div>
+					<h1 class="font-display text-4xl font-semibold sm:text-5xl">Current work</h1>
+					<p class="mt-4 max-w-3xl text-[1.03rem] leading-8 text-base-content/78">
+						What I&apos;m building, testing, and trying to understand right now.
+					</p>
+				</div>
+				<StatusBadge status={currentFocus.status} />
+			</div>
+			<div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+				<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Updated {currentFocus.lastUpdated}</p>
+				{currentProject && (
+					<a href={currentFocus.projectUrl} class="editorial-link text-sm">{currentProject.data.title}</a>
+				)}
+			</div>
+		</section>
+
+		<section class="motion-reveal mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4" style="--reveal-order: 1;">
+			<article class="rounded-box border border-base-content/8 bg-base-200/40 p-5">
+				<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Current project</p>
+				<p class="mt-3 text-lg font-semibold">{currentFocus.project}</p>
+				<p class="mt-2 text-sm leading-7 text-base-content/76">
+					{currentProject?.data.description ?? 'AI learning tools in active development.'}
+				</p>
+			</article>
+			<article class="rounded-box border border-base-content/8 bg-base-200/40 p-5">
+				<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Current milestone</p>
+				<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.latestMilestone}</p>
+			</article>
+			<article class="rounded-box border border-base-content/8 bg-base-200/40 p-5">
+				<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Testing now</p>
+				<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.testingNow}</p>
+			</article>
+			<article class="rounded-box border border-base-content/8 bg-base-200/40 p-5">
+				<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Biggest blocker</p>
+				<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.biggestBlocker}</p>
+			</article>
+		</section>
+
+		<section class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-12">
+			<div class="min-w-0 space-y-10">
+				<section class="motion-reveal space-y-4" style="--reveal-order: 2;">
+					<p class="font-mono text-[0.78rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Current focus</p>
+					<p class="max-w-3xl text-[1.02rem] leading-8 text-base-content/84">
+						{currentFocus.currentFocus}
+					</p>
+				</section>
+
+				<section class="motion-reveal space-y-5" style="--reveal-order: 3;">
+					<div>
+						<p class="font-mono text-[0.78rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">What changed recently</p>
+						<h2 class="mt-2 font-display text-3xl font-semibold">This week in the lab</h2>
+					</div>
+					<div class="border-l border-base-content/10 pl-5">
+						{currentFocus.recentChanges.map((entry) => (
+							<div class="relative pb-5 last:pb-0">
+								<span class="absolute -left-[1.6rem] top-1 h-2.5 w-2.5 rounded-full bg-primary/70"></span>
+								<p class="font-mono text-[0.76rem] font-semibold tracking-[0.1em] text-base-content/72 uppercase">{entry.date}</p>
+								<p class="mt-2 text-sm leading-7 text-base-content/82">{entry.note}</p>
+							</div>
+						))}
+					</div>
+				</section>
+
+				<section class="motion-reveal space-y-5" style="--reveal-order: 4;">
+					<div>
+						<p class="font-mono text-[0.78rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Current experiment</p>
+						<h2 class="mt-2 font-display text-3xl font-semibold">What I&apos;m testing</h2>
+					</div>
+					<div class="grid gap-4 md:grid-cols-2">
+						<article class="rounded-box border border-base-content/8 bg-base-200/38 p-5">
+							<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Experiment</p>
+							<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.recentExperiment}</p>
+						</article>
+						<article class="rounded-box border border-base-content/8 bg-base-200/38 p-5">
+							<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Hypothesis</p>
+							<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.hypothesis}</p>
+						</article>
+						<article class="rounded-box border border-base-content/8 bg-base-200/38 p-5">
+							<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Signal I&apos;m watching</p>
+							<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.signalWatching}</p>
+						</article>
+						<article class="rounded-box border border-base-content/8 bg-base-200/38 p-5">
+							<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">What counts as success</p>
+							<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.successCriteria}</p>
+						</article>
+					</div>
+				</section>
+
+				{highlightedPost && (
+					<section class="motion-reveal space-y-5" style="--reveal-order: 5;">
+						<div class="flex items-end justify-between gap-4">
+							<div>
+								<p class="font-mono text-[0.78rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Writing</p>
+								<h2 class="mt-2 font-display text-3xl font-semibold">Related writing</h2>
+							</div>
+							<a href="/writing" class="editorial-link hidden text-sm sm:inline">See all writing</a>
+						</div>
+						<div class="max-w-2xl">
+							<PostCard post={highlightedPost} showType={true} showProject={true} showTakeaway={true} />
+						</div>
+					</section>
+				)}
+			</div>
+
+			<aside class="motion-reveal lg:sticky lg:top-24 lg:self-start" style="--reveal-order: 2;">
+				<div class="space-y-5">
+					<section class="rounded-box border border-base-content/8 bg-base-200/36 p-5">
+						<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Open question</p>
+						<p class="mt-3 text-sm leading-7 text-base-content/82">{currentFocus.currentQuestion}</p>
+					</section>
+
+					<section class="rounded-box border border-base-content/8 bg-base-200/36 p-5">
+						<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Open loops</p>
+						<div class="mt-3 space-y-3">
+							{currentFocus.openQuestions.map((question) => (
+								<p class="border-t border-base-content/8 pt-3 text-sm leading-7 text-base-content/80 first:border-t-0 first:pt-0">
+									{question}
+								</p>
+							))}
+						</div>
+					</section>
+
+					<section class="rounded-box border border-base-content/8 bg-base-200/36 p-5">
+						<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Next up</p>
+						<div class="mt-3 space-y-3">
+							{currentFocus.nextUp.map((item) => (
+								<p class="border-t border-base-content/8 pt-3 text-sm leading-7 text-base-content/80 first:border-t-0 first:pt-0">
+									{item}
+								</p>
+							))}
+						</div>
+					</section>
+
+					<section class="rounded-box border border-base-content/8 bg-base-200/36 p-5">
+						<p class="font-mono text-[0.76rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Useful links</p>
+						<div class="mt-4 space-y-3 text-sm leading-7">
+							<a href={currentFocus.projectUrl} class="editorial-link block">Open {currentFocus.project}</a>
+							{currentFocus.repoUrl && (
+								<a href={currentFocus.repoUrl} target="_blank" rel="noopener noreferrer" class="editorial-link block">
+									View the repo
+								</a>
+							)}
+							<a href={currentFocus.latestWritingHref} class="editorial-link block">{currentFocus.latestWritingLabel}</a>
+							<a href="/writing" class="editorial-link block">Browse all writing</a>
+						</div>
+					</section>
+				</div>
+			</aside>
+		</section>
+	</div>
+</BaseLayout>

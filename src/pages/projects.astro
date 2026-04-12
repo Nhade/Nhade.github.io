@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = (await getCollection('projects')).sort(
+	(a, b) => a.data.order - b.data.order
+);
+const activeProjects = allProjects.filter((p) => p.data.status !== 'completed');
+const completedProjects = allProjects.filter((p) => p.data.status === 'completed');
+---
+
+<BaseLayout
+	title="Projects | Ray's Lab"
+	description="AI learning tools I'm building — from personalized Japanese learning to IDE-integrated coding tutors and beyond."
+	activeNav="projects"
+>
+	<div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+		<div class="motion-reveal mb-10" style="--reveal-order: 0;">
+			<p class="eyebrow text-xs font-medium">Projects</p>
+			<h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">What I'm building</h1>
+			<p class="mt-4 max-w-2xl text-[1.05rem] leading-8 text-base-content/76">
+				Most of my work centers around AI-powered learning tools, a focus that grew naturally out of the roadblocks I hit in my own studies. Whether I'm tackling Japanese or a new programming concept, I've noticed that traditional tools often become rigid right when you need them to be the most adaptive. These projects are my way of exploring how AI can fill that gap — not by handing out the answers, but by providing the flexible, personalized feedback that actually helps us grow.
+			</p>
+		</div>
+
+		{activeProjects.length > 0 && (
+			<section class="space-y-4">
+				<h2 class="eyebrow text-xs font-medium">Active</h2>
+				<div class="grid gap-4">
+					{activeProjects.map((project, index) => (
+						<div class="motion-reveal" style={`--reveal-order: ${index + 1};`}>
+							<ProjectCard project={project} variant="full" />
+						</div>
+					))}
+				</div>
+			</section>
+		)}
+
+		{completedProjects.length > 0 && (
+			<section class="mt-12 space-y-4">
+				<h2 class="eyebrow text-xs font-medium">Completed</h2>
+				<div class="grid gap-4">
+					{completedProjects.map((project, index) => (
+						<div class="motion-reveal" style={`--reveal-order: ${activeProjects.length + index + 1};`}>
+							<ProjectCard project={project} variant="full" />
+						</div>
+					))}
+				</div>
+			</section>
+		)}
+	</div>
+</BaseLayout>
