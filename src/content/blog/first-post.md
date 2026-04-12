@@ -21,9 +21,9 @@ Astro is a modern static site builder that ships zero JavaScript by default. It 
 
 Key benefits:
 
-- **Islands architecture** — hydrate only the components that need interactivity
-- **Content collections** — type-safe frontmatter with Zod schemas
-- **Built-in Markdown** — with Shiki syntax highlighting out of the box
+- **Islands architecture**: hydrate only the components that need interactivity
+- **Content collections**: type-safe frontmatter with Zod schemas
+- **Built-in Markdown**: with Shiki syntax highlighting out of the box
 
 ## Setting Up the Project
 
@@ -68,7 +68,7 @@ export const collections = { blog };
 
 ## Rendering a Post
 
-The dynamic route at `src/pages/blog/[...slug].astro` fetches and renders each post:
+The dynamic route at `src/pages/writing/[...slug].astro` fetches and renders each post:
 
 ```astro
 ---
@@ -94,3 +94,4 @@ const { Content } = await render(post);
 ## Wrapping Up
 
 That's the core setup. From here you can add more posts as Markdown files in `src/content/blog/` and they'll automatically appear in the list.
+

@@ -1,23 +1,15 @@
 ---
-import PostLayout from '../../layouts/PostLayout.astro';
-import PostTypeBadge from '../../components/PostTypeBadge.astro';
-import ProjectContext from '../../components/ProjectContext.astro';
-import PostCard from '../../components/PostCard.astro';
-import { getCollection, render } from 'astro:content';
+import PostLayout from '../layouts/PostLayout.astro';
+import PostTypeBadge from './PostTypeBadge.astro';
+import ProjectContext from './ProjectContext.astro';
+import { render } from 'astro:content';
 
-export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: { post },
-	}));
+interface Props {
+	post: any;
+	allPosts: any[];
 }
 
-const { post } = Astro.props;
-const allPosts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const { post, allPosts } = Astro.props;
 const currentIndex = allPosts.findIndex((entry) => entry.id === post.id);
 const newerPost = currentIndex > 0 ? allPosts[currentIndex - 1] : undefined;
 const olderPost = currentIndex >= 0 && currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : undefined;
@@ -42,13 +34,12 @@ const metadataItems = [
 	{ label: 'Reading time', value: `${readingTimeMinutes} min read` },
 ];
 
-// Related posts: same project or overlapping tags
 const relatedPosts = allPosts
-	.filter((p) => p.id !== post.id)
-	.filter((p) => {
-		if (post.data.project && p.data.project === post.data.project) return true;
-		const otherTags = p.data.tags ?? [];
-		return tags.some((t) => otherTags.includes(t));
+	.filter((entry) => entry.id !== post.id)
+	.filter((entry) => {
+		if (post.data.project && entry.data.project === post.data.project) return true;
+		const otherTags = entry.data.tags ?? [];
+		return tags.some((tag) => otherTags.includes(tag));
 	})
 	.slice(0, 3);
 ---
@@ -86,10 +77,7 @@ const relatedPosts = allPosts
 					<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Tags</p>
 					<div class="flex flex-wrap gap-2">
 						{tags.map((tag) => (
-							<a
-								href={`/tags/${encodeURIComponent(tag)}`}
-								class="tag-badge"
-							>
+							<a href={`/tags/${encodeURIComponent(tag)}`} class="tag-badge">
 								{tag}
 							</a>
 						))}
@@ -118,7 +106,7 @@ const relatedPosts = allPosts
 				<h2 class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Related writing</h2>
 				<div class="grid gap-3">
 					{relatedPosts.map((related) => (
-						<a href={`/blog/${related.id}`} class="editorial-card rounded-box p-4 transition-colors">
+						<a href={`/writing/${related.id}`} class="editorial-card rounded-box p-4 transition-colors">
 							<p class="text-sm font-semibold">{related.data.title}</p>
 							<p class="mt-1 text-xs text-muted">{related.data.description}</p>
 						</a>
@@ -129,7 +117,7 @@ const relatedPosts = allPosts
 
 		<nav class="mt-8 grid gap-4 sm:mt-10 md:grid-cols-2" aria-label="Post navigation">
 			{newerPost ? (
-				<a href={`/blog/${newerPost.id}`} class="editorial-card rounded-box p-5">
+				<a href={`/writing/${newerPost.id}`} class="editorial-card rounded-box p-5">
 					<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Newer post</p>
 					<p class="mt-3 text-lg font-semibold leading-snug">{newerPost.data.title}</p>
 				</a>
@@ -137,7 +125,7 @@ const relatedPosts = allPosts
 				<div aria-hidden="true"></div>
 			)}
 			{olderPost ? (
-				<a href={`/blog/${olderPost.id}`} class="editorial-card rounded-box p-5 md:text-right">
+				<a href={`/writing/${olderPost.id}`} class="editorial-card rounded-box p-5 md:text-right">
 					<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">Older post</p>
 					<p class="mt-3 text-lg font-semibold leading-snug">{olderPost.data.title}</p>
 				</a>

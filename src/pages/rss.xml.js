@@ -8,14 +8,15 @@ export async function GET(context) {
 
   return rss({
     title: "Ray's Lab",
-    description: 'A public build journal for AI learning tools — essays, build logs, and notes from ongoing work.',
+    description: 'A public build journal for AI learning tools - essays, build logs, and notes from ongoing work.',
     site: context.site,
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.pubDate,
       description: post.data.description,
-      link: `/blog/${post.id}`,
+      link: `/writing/${post.id}`,
       categories: [post.data.postType ?? 'essay', ...(post.data.tags ?? [])],
     })),
   });
 }
+

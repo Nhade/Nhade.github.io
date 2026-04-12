@@ -26,7 +26,7 @@ const formatDate = (date: Date) =>
 
 <BaseLayout
 	title="Ray's Lab"
-	description="A public build journal for AI learning tools — build logs, experiments, and essays from ongoing work on personalized learning systems."
+	description="A public build journal for AI learning tools - build logs, experiments, and essays from ongoing work on personalized learning systems."
 	activeNav="home"
 >
 	<div class="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-10 sm:px-6 sm:py-12">
@@ -43,7 +43,7 @@ const formatDate = (date: Date) =>
 							<br class="hidden sm:block" />
 							make learning smarter
 							<br class="hidden sm:block" />
-							— and write about the process.
+							- and write about the process.
 						</h1>
 						<p class="max-w-2xl text-[1.05rem] leading-8 text-base-content/76 sm:text-[1.1rem]">
 							A public build journal for AI-powered learning tools like AntiCopilot and a Japanese learning app. Build logs, experiments, and essays from ongoing work.
@@ -130,7 +130,7 @@ const formatDate = (date: Date) =>
 						<p class="eyebrow text-xs font-medium">Featured</p>
 						<h2 class="mt-2 font-display text-3xl font-semibold">Start here</h2>
 					</div>
-					<a href={`/blog/${featuredPost.id}`} class="editorial-link hidden text-sm sm:inline">Open featured writing</a>
+					<a href={`/writing/${featuredPost.id}`} class="editorial-link hidden text-sm sm:inline">Open featured writing</a>
 				</div>
 
 				<article class="editorial-panel editorial-feature rounded-box p-7 sm:p-9">
@@ -149,10 +149,10 @@ const formatDate = (date: Date) =>
 						<div class="rounded-box border border-base-content/8 bg-base-100/35 p-5">
 							<p class="text-xs font-semibold tracking-[0.18em] text-muted uppercase">Why this piece</p>
 							<p class="mt-3 text-sm leading-7 text-base-content/74">
-								A good entry point if you're new here — more honest than a landing page, and closer to the actual work than a portfolio write-up.
+								A good entry point if you're new here - more honest than a landing page, and closer to the actual work than a portfolio write-up.
 							</p>
 							<div class="mt-5">
-								<a href={`/blog/${featuredPost.id}`} class="btn btn-primary btn-sm">Read the piece</a>
+								<a href={`/writing/${featuredPost.id}`} class="btn btn-primary btn-sm">Read the piece</a>
 							</div>
 						</div>
 					</div>
@@ -190,3 +190,4 @@ const formatDate = (date: Date) =>
 		</section>
 	</div>
 </BaseLayout>
+

@@ -11,6 +11,7 @@ export default defineConfig({
   integrations: [mdx(), sitemap()],
   redirects: {
     '/blog': '/writing',
+    '/blog/[...slug]': '/writing/[...slug]',
   },
   markdown: {
     shikiConfig: {
@@ -21,3 +22,4 @@ export default defineConfig({
     plugins: [tailwindcss()]
   }
 });
+
