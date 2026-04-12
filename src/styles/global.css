@@ -73,13 +73,22 @@ body {
   background-color: var(--color-base-100);
   background-image:
     radial-gradient(circle at top, color-mix(in oklch, var(--color-primary) 8%, transparent) 0, transparent 42%),
-    linear-gradient(180deg, color-mix(in oklch, var(--color-base-content) 2%, transparent), transparent 18rem),
-    repeating-linear-gradient(
-      0deg,
-      transparent 0,
-      transparent 5px,
-      color-mix(in oklch, var(--color-base-content) 2.5%, transparent) 6px
-    );
+    linear-gradient(180deg, color-mix(in oklch, var(--color-base-content) 2%, transparent), transparent 18rem);
+}
+
+/* Stripe pattern on a fixed layer so it doesn't repaint on scroll */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 5px,
+    color-mix(in oklch, var(--color-base-content) 2.5%, transparent) 6px
+  );
 }
 
 code,
@@ -183,7 +192,7 @@ textarea:focus-visible,
   }
 
   .text-muted {
-    color: color-mix(in oklch, var(--color-base-content) 64%, transparent);
+    color: color-mix(in oklch, var(--color-base-content) 72%, transparent);
   }
 
   .editorial-shell {
@@ -210,7 +219,7 @@ textarea:focus-visible,
 
   .editorial-panel {
     background-color: color-mix(in oklch, var(--color-base-200) 92%, var(--color-base-100));
-    border: 1px solid color-mix(in oklch, var(--color-base-content) 10%, transparent);
+    border: 1px solid color-mix(in oklch, var(--color-base-content) 13%, transparent);
     box-shadow:
       0 18px 34px color-mix(in oklch, black 16%, transparent),
       inset 0 1px 0 color-mix(in oklch, white 5%, transparent);
@@ -241,7 +250,7 @@ textarea:focus-visible,
   }
 
   .eyebrow {
-    color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
     letter-spacing: 0.22em;
     text-transform: uppercase;
   }
@@ -279,7 +288,7 @@ textarea:focus-visible,
   .nav-link {
     position: relative;
     border: 1px solid transparent;
-    color: color-mix(in oklch, var(--color-base-content) 78%, transparent);
+    color: color-mix(in oklch, var(--color-base-content) 82%, transparent);
   }
 
   .nav-link::after {
@@ -353,8 +362,12 @@ textarea:focus-visible,
   }
 
   .editorial-toc-link.is-active {
-    background: color-mix(in oklch, var(--color-primary) 10%, transparent);
-    color: var(--color-primary);
+    background: color-mix(in oklch, var(--color-primary) 18%, transparent);
+    color: color-mix(in oklch, var(--color-primary) 86%, white 14%);
+    border-left: 2px solid var(--color-primary);
+    box-shadow: inset 0 1px 0 color-mix(in oklch, white 8%, transparent);
+    font-weight: 600;
+    padding-left: calc(0.75rem - 2px);
   }
 
   .editorial-article {
@@ -386,12 +399,12 @@ textarea:focus-visible,
     content: "";
     position: absolute;
     inset: auto -5rem -7rem auto;
-    width: 18rem;
-    height: 18rem;
+    width: 24rem;
+    height: 24rem;
     border-radius: 9999px;
-    background: radial-gradient(circle, color-mix(in oklch, var(--color-primary) 20%, transparent) 0, transparent 68%);
+    background: radial-gradient(circle, color-mix(in oklch, var(--color-primary) 18%, transparent) 0, transparent 72%);
     opacity: 0.7;
-    filter: blur(8px);
+    will-change: transform;
     animation: editorial-drift 12s ease-in-out infinite;
     pointer-events: none;
   }
@@ -472,7 +485,7 @@ textarea:focus-visible,
     padding-inline: 0.9rem;
     border-radius: 9999px;
     border-width: 1px;
-    border-color: color-mix(in oklch, var(--color-base-content) 22%, transparent);
+    border-color: color-mix(in oklch, var(--color-base-content) 28%, transparent);
     background-color: color-mix(in oklch, var(--color-base-300) 62%, var(--color-base-100));
     color: color-mix(in oklch, var(--color-base-content) 90%, white 10%);
     box-shadow:
@@ -505,6 +518,100 @@ textarea:focus-visible,
     box-shadow:
       inset 0 1px 0 color-mix(in oklch, white 8%, transparent),
       0 8px 18px color-mix(in oklch, var(--color-primary) 10%, transparent);
+  }
+
+  .editorial-tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid color-mix(in oklch, var(--color-base-content) 10%, transparent);
+    padding-bottom: 0;
+  }
+
+  .editorial-tab {
+    position: relative;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: color-mix(in oklch, var(--color-base-content) 68%, transparent);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition:
+      color var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease);
+  }
+
+  .editorial-tab:hover {
+    color: var(--color-base-content);
+  }
+
+  .editorial-tab[aria-current="page"] {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+
+  .post-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+    border: 1px solid;
+  }
+
+  .post-type-badge--essay {
+    color: color-mix(in oklch, var(--color-primary) 85%, white 15%);
+    border-color: color-mix(in oklch, var(--color-primary) 28%, transparent);
+    background: color-mix(in oklch, var(--color-primary) 8%, transparent);
+  }
+
+  .post-type-badge--log {
+    color: color-mix(in oklch, var(--color-secondary) 90%, white 10%);
+    border-color: color-mix(in oklch, var(--color-secondary) 28%, transparent);
+    background: color-mix(in oklch, var(--color-secondary) 8%, transparent);
+  }
+
+  .post-type-badge--note {
+    color: color-mix(in oklch, var(--color-base-content) 72%, transparent);
+    border-color: color-mix(in oklch, var(--color-base-content) 18%, transparent);
+    background: color-mix(in oklch, var(--color-base-content) 5%, transparent);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+    border: 1px solid;
+  }
+
+  .status-badge--active {
+    color: color-mix(in oklch, var(--color-success) 90%, white 10%);
+    border-color: color-mix(in oklch, var(--color-success) 30%, transparent);
+    background: color-mix(in oklch, var(--color-success) 8%, transparent);
+  }
+
+  .status-badge--paused {
+    color: color-mix(in oklch, var(--color-warning) 90%, white 10%);
+    border-color: color-mix(in oklch, var(--color-warning) 30%, transparent);
+    background: color-mix(in oklch, var(--color-warning) 8%, transparent);
+  }
+
+  .status-badge--completed {
+    color: color-mix(in oklch, var(--color-base-content) 72%, transparent);
+    border-color: color-mix(in oklch, var(--color-base-content) 18%, transparent);
+    background: color-mix(in oklch, var(--color-base-content) 5%, transparent);
   }
 
   .motion-reveal {
