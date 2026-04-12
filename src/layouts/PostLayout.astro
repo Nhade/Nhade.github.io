@@ -1,0 +1,164 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	image?: string;
+	headings: Array<{ depth: number; slug: string; text: string }>;
+}
+
+const { title, description, image, headings } = Astro.props;
+const topLevelHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<BaseLayout title={title} description={description} image={image} activeNav="writing">
+	<div aria-hidden="true" class="reading-progress">
+		<div class="reading-progress__bar" data-reading-progress></div>
+	</div>
+
+	<div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+		<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_18rem]">
+			<div class="min-w-0">
+				<slot name="header" />
+				<article id="article-content" class="editorial-article editorial-panel prose lg:prose-lg mx-auto max-w-3xl rounded-box p-7 sm:p-10 lg:p-12">
+					<slot />
+				</article>
+				<slot name="footer" />
+			</div>
+
+			{topLevelHeadings.length > 0 && (
+				<aside class="hidden lg:block">
+					<div class="editorial-toc editorial-card rounded-box p-5">
+						<p class="text-[0.68rem] font-semibold tracking-[0.18em] text-muted uppercase">On this page</p>
+						<nav class="mt-4" aria-label="Table of contents">
+							<ol class="space-y-1.5">
+								{topLevelHeadings.map((heading) => (
+									<li>
+										<a
+											href={`#${heading.slug}`}
+											class:list={[
+												'editorial-toc-link block rounded-md px-3 py-2 text-sm leading-6 text-base-content/74 transition-colors',
+												heading.depth === 3 && 'pl-6 text-base-content/62',
+											]}
+											data-toc-link
+											data-heading-slug={heading.slug}
+										>
+											{heading.text}
+										</a>
+									</li>
+								))}
+							</ol>
+						</nav>
+					</div>
+				</aside>
+			)}
+		</div>
+	</div>
+
+	<script is:inline>
+		const progressBar = document.querySelector('[data-reading-progress]');
+		const article = document.querySelector('#article-content');
+		const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+		const headingElements = tocLinks
+			.map((link) => document.getElementById(link.getAttribute('data-heading-slug')))
+			.filter(Boolean);
+		let articleTop = 0;
+		let articleHeight = 0;
+		let viewportHeight = window.innerHeight;
+		let activeHeadingId = headingElements[0]?.id;
+		let progressTicking = false;
+		let tocTicking = false;
+		let headingPositions = [];
+		const stickyOffset = 120;
+
+		const updateTocState = () => {
+			if (tocLinks.length === 0) return;
+
+			tocLinks.forEach((link) => {
+				const isActive = link.getAttribute('data-heading-slug') === activeHeadingId;
+				link.classList.toggle('is-active', isActive);
+				link.setAttribute('aria-current', isActive ? 'true' : 'false');
+			});
+		};
+
+		const measureArticle = () => {
+			if (!article) return;
+
+			const rect = article.getBoundingClientRect();
+			articleTop = rect.top + window.scrollY;
+			articleHeight = rect.height;
+			viewportHeight = window.innerHeight;
+		};
+
+		const measureHeadings = () => {
+			headingPositions = headingElements.map((heading) => ({
+				id: heading.id,
+				top: heading.getBoundingClientRect().top + window.scrollY,
+			}));
+		};
+
+		const updateProgress = () => {
+			progressTicking = false;
+			if (!article || !progressBar) return;
+
+			const scrollableDistance = Math.max(articleHeight - viewportHeight, 1);
+			const rawProgress = (window.scrollY - articleTop) / scrollableDistance;
+			const clampedProgress = Math.max(0, Math.min(rawProgress, 1));
+			progressBar.style.transform = `scaleX(${clampedProgress})`;
+			progressBar.style.opacity = clampedProgress > 0.01 ? '1' : '0';
+		};
+
+		const queueProgressUpdate = () => {
+			if (progressTicking) return;
+			progressTicking = true;
+			window.requestAnimationFrame(updateProgress);
+		};
+
+		const updateActiveHeading = () => {
+			tocTicking = false;
+			if (headingPositions.length === 0) return;
+
+			const anchorY = window.scrollY + stickyOffset;
+			const nextActiveHeading =
+				headingPositions
+					.filter((heading) => heading.top <= anchorY)
+					.at(-1)?.id ?? headingPositions[0]?.id;
+
+			if (nextActiveHeading && nextActiveHeading !== activeHeadingId) {
+				activeHeadingId = nextActiveHeading;
+				updateTocState();
+			}
+		};
+
+		const queueTocUpdate = () => {
+			if (tocTicking) return;
+			tocTicking = true;
+			window.requestAnimationFrame(updateActiveHeading);
+		};
+
+		const remeasureLayout = () => {
+			measureArticle();
+			measureHeadings();
+			queueProgressUpdate();
+			queueTocUpdate();
+		};
+
+		remeasureLayout();
+		updateProgress();
+		updateTocState();
+
+		window.addEventListener('scroll', queueProgressUpdate, { passive: true });
+		window.addEventListener('scroll', queueTocUpdate, { passive: true });
+		window.addEventListener('resize', remeasureLayout);
+		window.addEventListener('load', remeasureLayout);
+
+		if (article && 'ResizeObserver' in window) {
+			const resizeObserver = new ResizeObserver(() => {
+				remeasureLayout();
+			});
+
+			resizeObserver.observe(article);
+		}
+	</script>
+</BaseLayout>
