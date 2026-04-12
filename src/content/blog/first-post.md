@@ -7,6 +7,8 @@ tags:
   - Astro
   - Tailwind CSS
   - Design Systems
+postType: "essay"
+summary: "A walkthrough of the initial blog setup with Astro, Tailwind v4, and DaisyUI."
 ---
 
 # Getting Started with Astro
