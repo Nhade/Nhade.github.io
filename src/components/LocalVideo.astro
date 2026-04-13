@@ -1,0 +1,17 @@
+---
+interface Props {
+	src: string;
+	caption?: string;
+}
+
+const { src, caption } = Astro.props;
+---
+
+<figure class="not-prose my-6">
+	<div class="overflow-hidden rounded-lg border border-base-content/8 bg-base-300/40">
+		<video controls muted playsinline class="w-full">
+			<source src={src} type="video/mp4" />
+		</video>
+	</div>
+	{caption && <figcaption class="mt-2 text-center text-sm text-base-content/60">{caption}</figcaption>}
+</figure>
