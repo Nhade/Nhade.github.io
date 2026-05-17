@@ -1,0 +1,52 @@
+---
+interface Props {
+	src: string;
+	alt: string;
+	caption?: string;
+}
+
+const { src, alt, caption } = Astro.props;
+const diagramId = `diagram-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<figure class="my-7">
+	<button
+		type="button"
+		class="group relative block w-full cursor-zoom-in overflow-hidden rounded-lg border border-base-content/10 bg-base-200/40 transition-all hover:border-primary/30 hover:shadow-lg"
+		data-diagram={diagramId}
+		aria-label="Open diagram in larger view"
+	>
+		<img src={src} alt={alt} class="block w-full" loading="lazy" />
+		<span
+			class="pointer-events-none absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-base-content/12 bg-base-100/85 text-base-content/82 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+			aria-hidden="true"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+				<circle cx="9" cy="9" r="5.5"/>
+				<path d="M13.2 13.2L17 17"/>
+				<path d="M9 6.5v5M6.5 9h5"/>
+			</svg>
+		</span>
+	</button>
+	{caption && (
+		<figcaption class="mt-2 text-center text-sm text-muted">{caption}</figcaption>
+	)}
+</figure>
+
+<dialog id={diagramId} class="modal">
+	<div class="modal-box max-w-5xl bg-base-200 p-3 sm:p-4">
+		<img src={src} alt={alt} class="block w-full rounded-lg" />
+		<p class="mt-3 px-1 text-center text-sm leading-6 text-muted">{alt}</p>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
+
+<script is:inline define:vars={{ diagramId }}>
+	const btn = document.querySelector(`[data-diagram="${diagramId}"]`);
+	const dialog = document.getElementById(diagramId);
+	if (btn && dialog) {
+		btn.addEventListener('click', () => dialog.showModal());
+	}
+</script>

@@ -13,6 +13,7 @@ summary: "EC2 free credits expired. Singapore latency wasn't actually the bottle
 ---
 import Callout from '../../components/Callout.astro';
 import ImageGallery from '../../components/ImageGallery.astro';
+import Diagram from '../../components/Diagram.astro';
 
 AWS EC2 free credits expired on March 31. The dashboard had been counting down the whole time: about $14/mo for a simple Vue SPA + backend I had running, $30/mo once [Shiori](/projects#japanese-learning-app) went on top, and $100 of credits gone in roughly four months. So when the site died, it wasn't a surprise.
 
@@ -65,7 +66,10 @@ The dashboard itself is part of it too. Loading the Namecheap admin panel often 
 
 ### How the pieces fit
 
-![Architecture diagram showing the browser routed through Cloudflare DNS to either Cloudflare Pages (Shiori frontend), Cloudflare Workers (slides), GitHub Pages (this blog), or a Hetzner CX23 VPS running Caddy in front of Shiori's Flask backend and an AntiCopilot service that is set up but not yet pointed at production. A SQLite database on the VPS is backed up nightly to a Cloudflare R2 bucket.](/blog/hetzner-cloudflare/architecture.svg)
+<Diagram
+  src="/blog/hetzner-cloudflare/architecture.svg"
+  alt="Architecture diagram showing the browser routed through Cloudflare DNS to either Cloudflare Pages (Shiori frontend), Cloudflare Workers (slides), GitHub Pages (this blog), or a Hetzner CX23 VPS running Caddy in front of Shiori's Flask backend and an AntiCopilot service that is set up but not yet pointed at production. A SQLite database on the VPS is backed up nightly to a Cloudflare R2 bucket."
+/>
 
 Static content is served from Cloudflare's edge; dynamic content runs on the VPS.
 
