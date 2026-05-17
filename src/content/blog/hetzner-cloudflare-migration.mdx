@@ -1,0 +1,161 @@
+---
+title: "Off the Free Tier: Rebuilding on Hetzner + Cloudflare"
+description: "AWS EC2's free credits ran out. Here's the choice tree I walked, and the €4/mo stack I landed on."
+pubDate: "2026-05-16"
+author: "Ray"
+tags:
+  - Infrastructure
+  - Hetzner
+  - Cloudflare
+  - Caddy
+postType: "essay"
+summary: "EC2 free credits expired. Singapore latency wasn't actually the bottleneck. I picked a €4.79/mo Hetzner CX23 with Cloudflare DNS + Pages in front, and here's the decision tree."
+---
+import Callout from '../../components/Callout.astro';
+import ImageGallery from '../../components/ImageGallery.astro';
+
+AWS EC2 free credits expired on March 31. The dashboard had been counting down the whole time: about $14/mo for a simple Vue SPA + backend I had running, $30/mo once [Shiori](/projects#japanese-learning-app) went on top, and $100 of credits gone in roughly four months. So when the site died, it wasn't a surprise.
+
+What actually pushed me to migrate was a combination of things. I'd shared the dead Shiori URL with a few people and put it on my CV. I had two more things I wanted to ship on top of fixing it: a "static slides" project (HTML rewrites of lecture slides, made for mobile reading), and reviving Shiori itself. And sticking with EC2 at full price was going to mean paying more every time I added anything. So I went looking for alternatives.
+
+### What I needed to host
+
+The stack is small but not trivial:
+
+- **Two backends.** Shiori (Flask, NHK news ingestion, LLM grader, SQLite). [AntiCopilot](/projects#anticopilot) (FastAPI, the team-project backend).
+- **Two static frontends.** `shiori.nhade.com` (Vue/Vite) and `slides.nhade.com` (lecture HTMLs).
+- **This blog**, currently on GitHub Pages.
+
+Constraints:
+
+- **Priced to the workload.** A VPS doesn't do anything on its own; it's just compute. I don't need much of it right now, so I shouldn't be paying for much.
+- **No cold starts.** Shiori's hot path already waits 3–5 seconds on an LLM. Adding a Render-style 10-second wake-up to the first request after idle is exactly what kills a first impression.
+- **Single-operator ergonomics.** I'm not running this in a team. If a config file is more than 20 lines I've probably already lost.
+
+### What didn't make the cut
+
+**Oracle Always Free.** The pitch is great on paper: 4 vCPU ARM Ampere, 24 GB RAM, for free. The reality, repeated in a thousand Reddit threads, is that the A1 capacity in Tokyo and Singapore has been gone for years. My signup got rejected outright. Whatever the official explanation, the result was the same: not a real option in 2026.
+
+**Render's free tier.** Render is a clean PaaS and its deploy story is genuinely good. The free tier sleeps after 15 minutes idle. Cold-starting a Python backend that imports anything heavy takes 5–10 seconds on the first request. For a learning app where someone opens the page expecting it to feel responsive, that's a brutal first-impression tax every time.
+
+**Hetzner Singapore (CPX series).** Hetzner does have Singapore, which from Taiwan would have meant ~30 ms of latency instead of the ~250 ms I'd see from Europe. But:
+
+- The same spec costs **~€8/mo more** in Singapore than in EU (Singapore only carries the CPX line; Europe has the cost-optimized CX line).
+- **Bandwidth: 1 TB/mo in Singapore vs 20 TB/mo in EU.** Not a typo.
+
+The deciding question was whether the latency hit actually mattered. Every request in Shiori's hot path waits on an OpenAI-compatible LLM call: grading, tutoring, news ingestion. Adding ~200 ms to a request that's already 3–5 seconds is a 5–10% perceived hit at the worst. For static asset delivery, Cloudflare's edge handles that anyway. Latency mattered way less than the price/bandwidth gap.
+
+### The pick
+
+A Hetzner **CX23** in EU, Nuremberg. 2 vCPU, 4 GB RAM, 40 GB SSD, 20 TB bandwidth. **€3.99/mo** for the machine, plus 20% for daily snapshot backups. €4.79/mo all-in.
+
+![Hetzner Cloud console showing the live CX23 instance: 2 vCPU, 4 GB RAM, 40 GB local disk, 2.66 GB used, 0/20 TB traffic, €3.99/mo, located in eu-central / Nuremberg, Germany, with backups enabled and firewall applied.](/blog/hetzner-cloudflare/hetzner_dashboard.png)
+
+In front: **Cloudflare DNS** on the free plan, **Cloudflare Pages and Workers** for the static frontends, **Caddy** on the VPS as reverse proxy. The CDN, TLS termination, and DDoS protection that you'd pay extra for on most clouds are on Cloudflare's free tier.
+
+<Callout type="info" title="CX22 → CX23">
+If you're following a recommendation written before April 2026 you'll see "CX22" in the docs and find no such option in the Hetzner console. Hetzner renamed the cost-optimized 2 vCPU / 4 GB tier to **CX23** in a 2026 pricing pass. Functionally the same machine; slightly different price.
+</Callout>
+
+### Why Cloudflare in front
+
+I'd already used Cloudflare Pages and Workers on earlier deployments, and the developer experience is the kind that disappears once you've done it: link a repo, pick a branch and a build directory, the site is up basically instantly. Settings changes on the dashboard show up almost as fast (switch tabs, refresh, it's already there), build steps aside.
+
+The dashboard itself is part of it too. Loading the Namecheap admin panel often takes several seconds, like something is cold-starting in the background. The Cloudflare dashboard feels like a normal web app, and there's enough on the free tier to be worth actually poking around in.
+
+### How the pieces fit
+
+![Architecture diagram showing the browser routed through Cloudflare DNS to either Cloudflare Pages (Shiori frontend), Cloudflare Workers (slides), GitHub Pages (this blog), or a Hetzner CX23 VPS running Caddy in front of Shiori's Flask backend and an AntiCopilot service that is set up but not yet pointed at production. A SQLite database on the VPS is backed up nightly to a Cloudflare R2 bucket.](/blog/hetzner-cloudflare/architecture.svg)
+
+Static content is served from Cloudflare's edge; dynamic content runs on the VPS.
+
+- `api.shiori.nhade.com` → grey-cloud A record → Hetzner IP → Caddy → `:5000` (Shiori, gunicorn).
+- `api.antipilot.nhade.com` → **proxied** A record (orange cloud) → Hetzner IP → Caddy → `:8000` (FastAPI). *Set up but not pointed at the production frontend yet (see below). Proxied so Cloudflare returns a managed error page instead of `connection refused` while I'm not ready to ship it.*
+- `shiori.nhade.com` → Cloudflare Pages, built from the Vite repo on every push to `main`.
+- `slides.nhade.com` → Cloudflare Workers, flat static repo, no build step.
+- `blog.nhade.com` → CNAME to `nhade.github.io`, grey-cloud. GitHub Pages handles its own TLS, so proxying through Cloudflare here gets fiddly without buying you anything.
+
+![Cloudflare DNS records view for nhade.com: A record api.anticopilot proxied (orange cloud), A record api.shiori DNS-only (grey cloud), CNAME blog → nhade.github.io DNS-only, CNAME shiori → shiori-frontend.pages.dev proxied.](/blog/hetzner-cloudflare/dns_record_table.png)
+
+A small detail I like: this blog is on GitHub Pages, but the custom domain is provisioned through Cloudflare DNS. The same site is reachable from `nhade.github.io` or from `blog.nhade.com`.
+
+### The Caddyfile is five lines per service
+
+```caddy
+{
+    email you@example.com
+}
+
+api.shiori.nhade.com {
+    reverse_proxy localhost:5000
+    encode gzip
+}
+
+api.antipilot.nhade.com {
+    reverse_proxy localhost:8000
+    encode gzip
+}
+```
+
+That's the entire reverse-proxy layer. Caddy handles Let's Encrypt over HTTP-01 automatically. First hit on a new subdomain takes a second or two while it issues the cert, then it's cached for 60 days. No nginx config files to maintain, no certbot cron job.
+
+Combined with Cloudflare's edge for the static side, the developer experience ends up close to a managed platform (auto-TLS, push-to-deploy, edge caching) without actually being on one.
+
+### Running the box
+
+**Hardening.** Provisioning uses cloud-init via Hetzner's "User data" field. The pieces that matter:
+
+- Dedicated `apps` user, no root SSH, no password auth, key-only.
+- `fail2ban` and `unattended-upgrades` enabled by default.
+- Hetzner Cloud Firewall allows only TCP 22 (rate-limited), 80, and 443 inbound.
+- Narrow sudoers: `apps ALL=(root) NOPASSWD: /bin/systemctl restart shiori` (and the same for `antipilot`). That's the entire root capability surface for the CI user.
+
+**Auto-deploy.** Both backends deploy from GitHub Actions on every push to `main`: SSH into the box, `git pull`, restart systemd. The static frontends are deployed by Cloudflare Pages (shiori) and Workers (slides), both watching their repos directly.
+
+![GitHub's "All checks have passed" panel on a push to main: four green checks — CI / Backend successful in 2m, Cloudflare Pages deployed successfully, CI / Frontend successful in 29s, Deploy to Hetzner successful in 2m.](/blog/hetzner-cloudflare/github_actions.png)
+
+Each push runs four checks in parallel: backend CI, frontend CI, the Cloudflare Pages deploy, and the SSH-and-restart job on Hetzner. The whole stack is live in about two minutes.
+
+**Backups.** SQLite file at `/srv/shiori/db.sqlite3`. A nightly cron runs:
+
+```bash
+sqlite3 /srv/shiori/db.sqlite3 ".backup '/tmp/shiori-$(date +%F).db'"
+gzip /tmp/shiori-*.db
+rclone copy /tmp/shiori-*.db.gz r2:shiori-backups/
+rm /tmp/shiori-*.db.gz
+```
+
+R2's egress is free; storage at this scale is essentially free too. The two backups cover different scenarios: Hetzner snapshots restore the whole machine, R2 holds yesterday's database file if I need to pull a single row back.
+
+### What's actually live, what isn't
+
+**Live:**
+
+- Shiori, end to end. `api.shiori.nhade.com` answers; `shiori.nhade.com` builds and deploys from `main`.
+- `slides.nhade.com` (lecture HTMLs).
+- This blog, via the Cloudflare-DNS-fronted GitHub Pages route.
+- Nightly R2 backups.
+
+<ImageGallery images={[
+  { src: "/blog/hetzner-cloudflare/shiori_login.png", alt: "shiori.nhade.com login page rendered from Cloudflare Pages" },
+  { src: "/blog/hetzner-cloudflare/shiori_ai_feedback.png", alt: "shiori.nhade.com practice page in use: the grader returning grammatical feedback inline — frontend on Pages, backend at api.shiori.nhade.com" },
+]} columns={2} />
+
+**Not yet:**
+
+- **AntiCopilot deployment.** The backend is mid-rework right now, with its API surface shifting week to week. Shipping the frontend against it would just create breaking-change churn. I'm also holding off until I have basic rate limiting in front of the public API; otherwise the first time anyone shares the URL, my OpenAI key gets exercised by scrapers. Code is on the box, the systemd unit is enabled, DNS is ready. The flip-the-switch step is intentional.
+- **Cloudflare Registrar transfer.** The domain is still on Namecheap because of their cheap first-year discount. Once that renewal hits, I'll move to Cloudflare Registrar (at-cost pricing, no upsells).
+
+### What it costs
+
+| Line item | Monthly |
+|---|---|
+| Hetzner CX23 | €3.99 |
+| Daily snapshot backups (+20%) | €0.80 |
+| Cloudflare (DNS, CDN, Pages, Workers, R2 at this scale) | €0 |
+| GitHub Actions | €0 (included) |
+| **Total** | **€4.79** |
+
+For comparison, the dying EC2 setup was running about $14/mo for the Vue SPA + backend I had on it, and roughly $30/mo once Shiori was added on top. At that rate, $100 of free credits disappeared in four months. The new stack runs the same workload plus two more services for under €5/mo.
+
+The CX23 has more capacity than what I'm running on it now. I have some half-formed ideas for the rest (a personal VPN, a small Minecraft server for friends), but none of them are in a hurry. For now the stack runs, the bill is small, and there are few enough moving parts that I can keep all of them in my head.
