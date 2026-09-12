@@ -3,7 +3,7 @@ title: "AntiCopilot"
 slug: "anticopilot"
 status: "active"
 description: "A highly personalized IDE-integrated learning experience powered by LangGraph, designed to help developers learn by doing — not by copying."
-longDescription: "AntiCopilot flips the script on AI code assistants. Instead of writing code for you, it guides you through the learning process with personalized feedback, struggle signal detection, and concept-level spaced repetition, all integrated directly into VS Code. Built with one teammate: I wrote the web dashboard, the VS Code extension, the phone companion, the struggle-signal sidecar, and the backend REST layer and FSRS review loop; my teammate wrote the LangGraph agent, the content-generation pipeline, and the learner memory."
+longDescription: "AntiCopilot flips the script on AI code assistants. Instead of writing code for you, it guides you through the learning process with personalized feedback, struggle signal detection, and concept-level spaced repetition, all integrated directly into VS Code. A two-person project: I built the learner-facing side, from the VS Code extension and web dashboard to struggle-signal capture and the FSRS review loop, on top of the LangGraph planning agent my teammate built."
 techStack:
   - LangGraph
   - TypeScript
@@ -49,7 +49,7 @@ milestones:
     label: "Extension: I'm-stuck hint flow, solution submit, sidebar redesign"
 ---
 
-AntiCopilot is a team project I built with one teammate (a classmate helped with the evaluation shown on the project hub), originally started as a project design course assignment, though in practice it ran more like a side project. I built the web dashboard, the VS Code extension, the phone companion, the standalone struggle-signal sidecar, and the backend's REST layer and FSRS review loop. My teammate built the LangGraph agent, the content-generation pipeline, and the learner-memory store.
+AntiCopilot is a two-person project, originally started as a project design course assignment, though in practice it ran more like a side project. I built the learner-facing side, from the VS Code extension and web dashboard to struggle-signal capture and the FSRS review loop, on top of the LangGraph planning agent my teammate built. A classmate helped with the evaluation shown on the project hub.
 
 Key ideas:
 - **Struggle signal capture** — detecting when a learner is stuck and offering targeted guidance instead of solutions
