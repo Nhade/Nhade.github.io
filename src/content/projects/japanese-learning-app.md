@@ -14,6 +14,7 @@ techStack:
   - SQLite
 startDate: "2025-08-27"
 repoUrl: "https://github.com/Nhade/japanese-output-frontend-tailwind"
+demoUrl: "https://shiori.nhade.com"
 order: 2
 milestones:
   - date: "2025-08-27"
@@ -26,6 +27,12 @@ milestones:
     label: "Multi-language support (EN/JA/ZH-TW)"
   - date: "2026-01-01"
     label: "Personalized learner profiles & analytics"
+  - date: "2026-05-02"
+    label: "Off the free tier: backend on Hetzner with auto-deploy, frontend on Cloudflare Pages"
+  - date: "2026-05-21"
+    label: "Personal RAG: grader surfaces similar past mistakes at review time"
+  - date: "2026-06-14"
+    label: "Final-exam MCQ deck with per-question answer-source labels"
 ---
 
 I've been learning Japanese for about a year and a half, originally just to read a novel I loved in its original language. Anki carried me through roughly 4,000 vocabulary words and I hit N2 reading without too much trouble — but my writing stayed stuck. That's the gap this project is about: meaningful practice with real Japanese content and the kind of feedback that no static flashcard app can give.

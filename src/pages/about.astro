@@ -9,7 +9,7 @@ const allProjects = (await getCollection('projects')).sort(
 
 <BaseLayout
 	title="About | Ray's Lab"
-	description="About Ray — 3rd-year CS student at NCKU building AI-powered learning tools and documenting the process."
+	description="About Ray: 4th-year CS student at NCKU, part-time research assistant after a summer 2026 internship at IIS, Academia Sinica, building AI learning tools and documenting the process."
 	activeNav="about"
 >
 	<div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
@@ -18,9 +18,26 @@ const allProjects = (await getCollection('projects')).sort(
 			<h1 class="font-display text-4xl font-semibold sm:text-5xl">Hi, I'm Ray.</h1>
 		</div>
 
-		<div class="motion-reveal mt-8 space-y-6 text-[1.02rem] leading-8 text-base-content/82" style="--reveal-order: 1;">
+		<section class="motion-reveal mt-8 grid gap-4 sm:grid-cols-3" style="--reveal-order: 1;" aria-label="Current status">
+			<div class="rounded-box border border-base-content/8 bg-base-200/40 p-5">
+				<p class="font-mono text-[0.72rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Currently</p>
+				<p class="mt-3 text-sm leading-7 text-base-content/84">Part-time research assistant, continuing the LoRA adapter reuse work from a summer 2026 research internship at the Institute of Information Science, Academia Sinica (Jul to Aug).</p>
+			</div>
+			<div class="rounded-box border border-base-content/8 bg-base-200/40 p-5">
+				<p class="font-mono text-[0.72rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Studying</p>
+				<p class="mt-3 text-sm leading-7 text-base-content/84">4th-year Computer Science, National Cheng Kung University.</p>
+			</div>
+			<div class="rounded-box border border-base-content/8 bg-base-200/40 p-5">
+				<p class="font-mono text-[0.72rem] font-semibold tracking-[0.12em] text-base-content/78 uppercase">Working on</p>
+				<p class="mt-3 text-sm leading-7 text-base-content/84">
+					<a href="/projects#lora-adapter-reuse" class="editorial-link">LoRA adapter reuse</a>: cross-model transfer, then multi-adapter merging on small open LLMs.
+				</p>
+			</div>
+		</section>
+
+		<div class="motion-reveal mt-8 space-y-6 text-[1.02rem] leading-8 text-base-content/82" style="--reveal-order: 2;">
 			<p>
-				I'm a 3rd-year Computer Science student at National Cheng Kung University (NCKU). I started building AI learning tools by accident — experimenting with side project ideas, I tried combining AI with something I actually cared about: learning Japanese. That experiment stuck, and the work since has felt purposeful in a way that's hard to manufacture. Being a learner myself means I can judge my own tools critically and solve the pain points I actually hit.
+				I'm a 4th-year Computer Science student at National Cheng Kung University (NCKU). Over summer 2026 I was a research intern at the Institute of Information Science, Academia Sinica, and I'm continuing that work on LoRA adapter reuse as a part-time research assistant. I started building AI learning tools by accident — experimenting with side project ideas, I tried combining AI with something I actually cared about: learning Japanese. That experiment stuck, and the work since has felt purposeful in a way that's hard to manufacture. Being a learner myself means I can judge my own tools critically and solve the pain points I actually hit.
 			</p>
 			<p>
 				This site is my public build journal. It's where I document what I'm building, share what I'm learning, and think through the design decisions along the way. You'll find polished essays alongside rough build logs and quick notes — all part of building in the open.
@@ -28,7 +45,7 @@ const allProjects = (await getCollection('projects')).sort(
 		</div>
 
 		{allProjects.length > 0 && (
-			<section class="motion-reveal mt-12" style="--reveal-order: 2;">
+			<section class="motion-reveal mt-12" style="--reveal-order: 3;">
 				<h2 class="eyebrow text-xs font-medium">Current projects</h2>
 				<div class="mt-4 space-y-4">
 					{allProjects.map((project) => (
@@ -44,7 +61,7 @@ const allProjects = (await getCollection('projects')).sort(
 			</section>
 		)}
 
-		<section class="motion-reveal mt-12 editorial-panel rounded-box p-6 sm:p-8" style="--reveal-order: 3;">
+		<section class="motion-reveal mt-12 editorial-panel rounded-box p-6 sm:p-8" style="--reveal-order: 4;">
 			<h2 class="text-lg font-semibold">Get in touch</h2>
 			<p class="mt-3 text-sm leading-7 text-base-content/72">
 				Find me on <a href="https://github.com/Nhade" target="_blank" rel="noopener noreferrer" class="editorial-link">GitHub</a>,
