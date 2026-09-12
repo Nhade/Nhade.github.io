@@ -9,7 +9,11 @@ import { currentFocus } from '../data/current-focus';
 const allPosts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
-const [featuredPost, ...remainingPosts] = allPosts;
+// Feature the newest essay; notes and logs are too short to carry the hero slot,
+// but they still show up in the recent list below.
+const featuredPost =
+	allPosts.find((post) => (post.data.postType ?? 'essay') === 'essay') ?? allPosts[0];
+const remainingPosts = allPosts.filter((post) => post.id !== featuredPost?.id);
 const recentPosts = (remainingPosts.length > 0 ? remainingPosts : allPosts).slice(0, 4);
 
 const allProjects = (await getCollection('projects')).sort(
