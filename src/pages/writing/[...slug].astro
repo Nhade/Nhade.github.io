@@ -29,12 +29,16 @@ export async function getStaticPaths() {
 	];
 }
 
+// Only show a type tab once at least one post of that type exists; the routes stay
+// generated either way so an empty tab is never a 404, just unlisted.
+const countByType = (type: string) =>
+	allPosts.filter((entry) => (entry.data.postType ?? 'essay') === type).length;
 const tabs = [
-	{ href: '/writing', label: 'All' },
-	{ href: '/writing/essays', label: 'Essays' },
-	{ href: '/writing/logs', label: 'Logs' },
-	{ href: '/writing/notes', label: 'Notes' },
-];
+	{ href: '/writing', label: 'All', count: allPosts.length },
+	{ href: '/writing/essays', label: 'Essays', count: countByType('essay') },
+	{ href: '/writing/logs', label: 'Logs', count: countByType('log') },
+	{ href: '/writing/notes', label: 'Notes', count: countByType('note') },
+].filter((tab) => tab.count > 0);
 
 const { pageType, filter, label, post } = Astro.props;
 const posts = pageType === 'collection'
@@ -48,7 +52,7 @@ const title = filter === 'all' ? 'Writing | Ray\'s Lab' : `${label} | Writing | 
 {pageType === 'collection' ? (
 	<BaseLayout
 		title={title}
-		description="Browse all writing from Ray's Lab ??essays, build logs, and notes from ongoing work on AI learning tools."
+		description="Browse all writing from Ray's Lab: essays, build logs, and notes from ongoing work on AI learning tools."
 		activeNav="writing"
 	>
 		<div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">

@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://nhade.github.io',
+  site: 'https://blog.nhade.com',
   integrations: [mdx(), sitemap()],
   redirects: {
     '/blog': '/writing',
